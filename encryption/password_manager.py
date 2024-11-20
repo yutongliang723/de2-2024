@@ -13,11 +13,13 @@ def encrypt(password: str) -> str:
     """
     Encrypts a password using SHA256
     """
+    password = password.encode("utf-8")
+    hashed_password = hashlib.sha256(password).hexdigest()
     # TODO: Use hashlib.sha256() to hash the password
     # Remember to:
     # 1. Encode the password string
     # 2. Use hexdigest() to get the hash
-    pass
+    return hashed_password
 
 
 # Test your encrypt function
@@ -61,7 +63,12 @@ def add_update_user(users: dict, username: str, password: str) -> None:
     add_user(users, "alice", "newpass123")
     returns {"alice": "new_hash"} where new_hash is encrypt("newpass123")
     """
-    pass
+
+    new_password = password.encode("utf-8")
+    hashed_password = hashlib.sha256(new_password).hexdigest()
+    users[username] = hashed_password
+
+    return users
 
 
 def test_add_update_user():
@@ -97,7 +104,11 @@ def check_password(users: dict, username: str, password: str) -> bool:
     # 1. The username exists in the database
     # 2. The hashed password matches what's stored
     # Hint: Use the encrypt() function on the password before comparing!
-    pass
+
+    if username in users:
+        return encrypt(password) == users[username]
+    else:
+        return False
 
 
 # Test your check_password function
@@ -122,6 +133,9 @@ test_check_password()
 
 
 # %% Bonus Exercise 1: Add password requirements
+import re
+
+
 def add_user_with_requirements(users: dict, username: str, password: str) -> bool:
     """
     Add user only if password meets requirements:
@@ -130,7 +144,25 @@ def add_user_with_requirements(users: dict, username: str, password: str) -> boo
     - Contains at least one uppercase letter
     Returns False if requirements aren't met
     """
-    pass
+    flag = 0
+    while True:
+
+        if len(password) <= 8:
+            flag = -1
+            break
+        elif not re.search("[A-Z]", password):
+            flag = -1
+            break
+        elif not re.search("[0-9]", password):
+            flag = -1
+            break
+        else:
+            flag = 0
+            break
+    if flag == -1:
+        return False
+    else:
+        return True
 
 
 # Test your password requirements
@@ -173,7 +205,8 @@ def add_user_with_salt(users: dict, username: str, password: str) -> None:
     add_user_with_salt({}, "alice", "pass123")
     returns {"alice": hash_of_pass123_plus_global_salt}
     """
-    pass
+    users[username] = encrypt(password) + GLOBAL_SALT
+    return users
 
 
 def test_salt():
